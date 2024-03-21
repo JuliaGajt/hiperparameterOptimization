@@ -1,8 +1,11 @@
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
+from Tools.scripts.dutree import display
 from sklearn import metrics
-from sklearn.model_selection import train_test_split, KFold, RepeatedKFold, ShuffleSplit, RepeatedStratifiedKFold
+from sklearn.model_selection import train_test_split, KFold, RepeatedKFold, ShuffleSplit, RepeatedStratifiedKFold, \
+    cross_val_score
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
@@ -13,22 +16,27 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
-    num_experiments = 3
+    num_experiments = 1
     # datasets = ['maxwell', 'china', 'desharnais', 'kitchenham', 'miyazaki94', 'nasa93']
     datasets = ['maxwell']
     # regressors = ['CART', 'GBM']
-    regressors = ['GBM']
+    regressors = ['CART']
+    # hyper_algorithms = ['grid search', 'random search', 'bayes search']
     hyper_algorithms = ['grid search']
-    # validation_methods = [
-    #     ('KFold', KFold(n_splits=5)),
-    #     ('RepeatedKFold', RepeatedKFold(n_splits=5, n_repeats=2)),
-    #     ('ShuffleSplit', ShuffleSplit(n_splits=5, test_size=0.2, random_state=42)),
-    #     ('RepeatedStratifiedKFold', RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=42))
-    # ]
 
-    validation_methods = ['KFold']
-
+    ########################################################
+    # for now irrelevant
+    validation_methods = [
+        ('KFold', KFold(n_splits=5)),
+        ('RepeatedKFold', RepeatedKFold(n_splits=5, n_repeats=2)),
+        ('ShuffleSplit', ShuffleSplit(n_splits=5, test_size=0.2, random_state=42)),
+        # ('RepeatedStratifiedKFold', RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=42))
+        ('RepeatedStratifiedKFold', 5)
+    ]
     #########################################################
+
+    before_tuning_df = pd.DataFrame()
+    after_tuning_df = pd.DataFrame()
 
     for dataset in tqdm(datasets):
         x, y = loadData.load_dataset(dataset)
@@ -38,7 +46,7 @@ if __name__ == '__main__':
 
             for i in range(num_experiments):
 
-                ml_alg, params = mlAlgorithms.select_ml_algorithm(alg, [])
+                ml_alg, param_grid, param_spaces = mlAlgorithms.select_ml_algorithm(alg)
                 X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=i)
                 scaler = StandardScaler()
                 X_train = scaler.fit_transform(X_train)
@@ -47,6 +55,7 @@ if __name__ == '__main__':
                 for hyper_algorithm in hyper_algorithms:
 
                     for validation_method in validation_methods:
+
                         ml_alg.fit(X_train, y_train)
                         prediction = ml_alg.predict(X_test)
 
@@ -70,7 +79,10 @@ if __name__ == '__main__':
 
                         # Parameter tuning ----------------------------------------------------------------------------
 
-                        hyper_alg = mlAlgorithms.select_hyper_algorithm(hyper_algorithm, ml_alg, params)
+                        val_met_name, val_met = validation_method
+                        hyper_alg = mlAlgorithms.select_hyper_algorithm(hyper_algorithm, ml_alg, param_spaces=param_spaces, validation_method=val_met)\
+                            if (hyper_algorithm == 'bayes search') else (
+                            mlAlgorithms.select_hyper_algorithm(hyper_algorithm, ml_alg, param_grid=param_grid, validation_method=val_met))
 
                         start = datetime.now()
 
@@ -94,8 +106,8 @@ if __name__ == '__main__':
                             f' MAE: {metrics.mean_absolute_error(y_test, prediction)} \n'
                             f' MSE: {metrics.mean_squared_error(y_test, prediction)} \n'
                             f' RMSE: {np.sqrt(metrics.mean_squared_error(y_test, prediction))} \n'
-                            f' Hyper best estimator: {hyper_alg.best_estimator_} \n'
-                            f' ---------------------------------------------------------------------------\n')
+                            f' Hyper best estimator: {hyper_alg.best_estimator_} \n')
                         print(to_be_displayed)
 
-                        print(f' Tuning with method: {hyper_algorithm} \n for ML algorithm: {alg} has finished.')
+                        print(f'\n Tuning with method: {hyper_algorithm} \n for ML algorithm: {alg} has finished.')
+
