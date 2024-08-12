@@ -8,8 +8,10 @@ from sklearn.metrics import mean_squared_error
 
 def _sample(params, param):
     distribution = params[param]
-    return distribution.rvs()
-
+    if type(distribution) is not list:
+        return distribution.rvs()
+    else:
+        return random.choice(distribution)
 
 class GeneticAlgorithm:
     def __init__(self, pipeline, params, cv=5, population_size=30, generations=30, mutation_rate=0.35):

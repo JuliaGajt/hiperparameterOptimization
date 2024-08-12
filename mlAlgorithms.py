@@ -60,7 +60,7 @@ def select_ml_algorithm(alg):
         ml_alg = GradientBoostingRegressor(criterion='squared_error', random_state=42)
         param_dict = {
             'n_estimators': [20, 35, 50, 70, 80, 100],
-            'learning_rate': [0.01, 0.05, 0.1],
+            'learning_rate': [0.01, 0.05, 0.07, 0.1],
             # 'max_depth': [3, 5, 7, 9],
             # 'min_samples_split': [2, 5, 10],
             # 'min_samples_leaf': [1, 2, 4],
@@ -98,7 +98,7 @@ def select_ml_algorithm(alg):
     if alg == 'SVM':
         ml_alg = SVR()
         param_dict = {'kernel': ['linear', 'poly'],
-                      'degree': [2, 3, 4],
+                      'degree': [2, 3],
                       # 'gamma': ['scale', 'auto', 0.1, 1],
                       # 'coef0': [0.0, 0.1, 0.5],
                       # 'tol': [1e-3, 1e-4],
@@ -109,7 +109,7 @@ def select_ml_algorithm(alg):
                       }
         search_space = {
             'kernel': Categorical(['linear', 'poly']),
-            'degree': Integer(2, 4),
+            'degree': Integer(2, 3),
             # 'gamma': Categorical(['scale', 'auto', 0.1, 1]),
             # 'coef0': Real(0.0, 0.5),
             # 'tol': Real(1e-4, 1e-3),
@@ -120,7 +120,7 @@ def select_ml_algorithm(alg):
         }
         search_uniform = {
             'kernel': ['linear', 'poly'],
-            'degree': randint(2, 4),
+            'degree': randint(2, 3),
             # 'gamma': ['scale', 'auto', 0.1, 1],
             # 'coef0': uniform(0.0, 0.5),
             # 'tol': loguniform(1e-4, 1e-3),
@@ -133,7 +133,7 @@ def select_ml_algorithm(alg):
     if alg == 'KNN':
         ml_alg = KNeighborsRegressor()
         param_dict = {
-            'n_neighbors': np.arange(2, 25, 1),
+            'n_neighbors': np.arange(2, 14, 1),
             # 'weights': ['uniform', 'distance'],
             # 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
             # 'leaf_size': [10, 20, 30, 40],
@@ -141,7 +141,7 @@ def select_ml_algorithm(alg):
             # 'metric': ['euclidean', 'manhattan', 'minkowski']
         }
         search_space = {
-            'n_neighbors': Integer(2, 25),
+            'n_neighbors': Integer(2, 14),
             # 'weights': Categorical(['uniform', 'distance']),
             # 'algorithm': Categorical(['auto', 'ball_tree', 'kd_tree', 'brute']),
             # 'leaf_size': Integer(10, 40),
@@ -149,7 +149,7 @@ def select_ml_algorithm(alg):
             # 'metric': Categorical(['euclidean', 'manhattan', 'minkowski'])
         }
         search_uniform = {
-            'n_neighbors': randint(2, 22),
+            'n_neighbors': randint(2, 14),
             # 'weights': ['uniform', 'distance'],
             # 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
             # 'leaf_size': randint(10, 40),
@@ -181,12 +181,12 @@ def select_ml_algorithm(alg):
     if alg == 'RF':
         ml_alg = RandomForestRegressor(criterion='squared_error', random_state=42)
         param_dict = {
-            'n_estimators': [20, 50, 100],
-            'max_depth': [1, 2, 5, 10],
+            'n_estimators': [20, 40, 60, 80, 100],
+            'max_depth': [None, 1, 2, 5, 10],
             # 'min_samples_split': [2, 5, 10],
             # 'min_samples_leaf': [1, 2, 4],
             # 'min_weight_fraction_leaf': [0.0, 0.1, 0.2],
-            'max_features': [0.3, 0.7, 1],
+            'max_features': [0.3, 0.6, 0.8, 1],
             # 'bootstrap': [True, False],
             # 'max_samples': [None, 0.5, 0.7, 0.9]
         }
@@ -214,15 +214,15 @@ def select_ml_algorithm(alg):
     if alg == 'EN':
         ml_alg = ElasticNet(random_state=42)
         param_dict = {
-            'alpha': [-3, -2, -1, 0, 1, 2, 3],
+            'alpha': np.logspace(-3, 3, 7),
             'l1_ratio': [0, 0.25, 0.5, 0.75, 1]
         }
         search_space = {
-            'alpha': Integer(-3, 3),
+            'alpha': Real(0.001, 1000, prior='log-uniform'),
             'l1_ratio': Real(0, 1)
         }
         search_uniform = {
-            'alpha': randint(-3, 3),
+            'alpha': loguniform(0.001, 999.999),
             'l1_ratio': uniform(0, 1)
         }
 

@@ -70,7 +70,9 @@ def load_dataset(dataset_name):
     if dataset_name == "china":
         data = arff.loadarff('datasets/china.arff')
         train = pd.DataFrame(data[0])
-        train = drop_outliers(train, 'Effort')
+
+        # było
+        # train = drop_outliers(train, 'Effort')
 
         effort = train["Effort"]
         features = train.drop(['Effort', 'Dev.Type', 'ID'], axis=1)
@@ -110,7 +112,8 @@ def load_dataset(dataset_name):
                 data[column] = data[column].map(encodings)
 
         # smaller errors. no MAE reduction :/ no overfitting (negative scores)
-        data = drop_outliers(data, "Actual.effort")
+        # było
+        # data = drop_outliers(data, "Actual.effort")
 
         effort = data["Actual.effort"]
         features = data.drop('Actual.effort', axis=1)
@@ -121,7 +124,7 @@ def load_dataset(dataset_name):
         train = train.drop(['ID'], axis=1)
 
         # smaller errors (cross-validation), no overfiting, smaller MAE in general. no MAE reduction :/
-        train = drop_outliers(train, "MM")
+        # train = drop_outliers(train, "MM")
 
         effort = train['MM']
         features = train.drop('MM', axis=1)
@@ -129,6 +132,7 @@ def load_dataset(dataset_name):
     if dataset_name == "nasa93":
         data = arff.loadarff('datasets/nasa93.arff')
         train = pd.DataFrame(data[0])
+        train = train.drop(['recordnumber'], axis=1)
 
         columns_with_object_type = [col for col in train.columns if train[col].dtype == "O"]
         for column in columns_with_object_type:
@@ -136,10 +140,12 @@ def load_dataset(dataset_name):
             train[column] = train[column].map(encodings)
 
         # smaller errors, better scores, no overfitting (negative scores), bigger MAE in general
-        train = drop_outliers(train, "act_effort")
+        # było
+        # train = drop_outliers(train, "act_effort")
         effort = train['act_effort']
         features = train.drop('act_effort', axis=1)
 
     check_for_null_values(features)
+
     return features, effort
 

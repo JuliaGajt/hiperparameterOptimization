@@ -49,26 +49,29 @@ class SimulatedAnnealing:
 
             # print(new_params)
 
-            low, up = self.params[param1].interval(1)
+            if type(self.params[param1]) is not list:
+                low, up = self.params[param1].interval(1)
 
-            if isinstance(self.params[param1], randint(0, 1).__class__):
-                if new_params[param1] == up+1:
-                    new_params[param1] = int(up)
-                elif new_params[param1] == low+1:
-                    new_params[param1] = int(low + 2)
-                else:
-                    new_params[param1] = int(new_params[param1] + np.random.choice([-1, 1]))
+                if isinstance(self.params[param1], randint(0, 1).__class__):
+                    if new_params[param1] == up+1:
+                        new_params[param1] = int(up)
+                    elif new_params[param1] == low+1:
+                        new_params[param1] = int(low + 2)
+                    else:
+                        new_params[param1] = int(new_params[param1] + np.random.choice([-1, 1]))
 
-            elif isinstance(self.params[param1], uniform(0, 1).__class__) or isinstance(self.params[param1], loguniform(0, 1).__class__):
-                if new_params[param1] == up:
-                    new_params[param1] = max(low, up - self.params[param1].rvs())
-                elif new_params[param1] == low:
-                    new_params[param1] = min(up, low + self.params[param1].rvs())
-                else:
-                    new_val = self.params[param1].rvs()
-                    new_params[param1] = new_params[param1] + np.random.choice([-new_val, new_val])
-                    if new_params[param1] > up or new_params[param1] < low:
-                        new_params[param1] = self.params[param1].rvs()
+                elif isinstance(self.params[param1], uniform(0, 1).__class__) or isinstance(self.params[param1], loguniform(0, 1).__class__):
+                    if new_params[param1] == up:
+                        new_params[param1] = max(low, up - self.params[param1].rvs())
+                    elif new_params[param1] == low:
+                        new_params[param1] = min(up, low + self.params[param1].rvs())
+                    else:
+                        new_val = self.params[param1].rvs()
+                        new_params[param1] = new_params[param1] + np.random.choice([-new_val, new_val])
+                        if new_params[param1] > up or new_params[param1] < low:
+                            new_params[param1] = self.params[param1].rvs()
+            else:
+                new_params[param1] = random.choice(self.params[param1])
 
         return new_params
 

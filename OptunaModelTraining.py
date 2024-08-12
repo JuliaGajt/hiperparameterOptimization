@@ -1,6 +1,5 @@
 from optuna import create_study, samplers
 from scipy.stats import randint
-from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import cross_val_score
 
 
@@ -28,11 +27,14 @@ class ModelTraining:
 
         params = {}
         for key, val in self.params.items():
-            low, up = self.params[key].interval(1)
-            if isinstance(self.params[key], randint(0, 1).__class__):
-                params.update({key: trial.suggest_int(key, low+1, up+1)})
+            if type(self.params[key]) is not list:
+                low, up = self.params[key].interval(1)
+                if isinstance(self.params[key], randint(0, 1).__class__):
+                    params.update({key: trial.suggest_int(key, low+1, up+1)})
+                else:
+                    params.update({key: trial.suggest_uniform(key, low, up)})
             else:
-                params.update({key: trial.suggest_uniform(key, low, up)})
+                params.update({key: trial.suggest_categorical(key, val)})
 
         # print(params)
 
