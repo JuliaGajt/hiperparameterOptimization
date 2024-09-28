@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split, KFold, RepeatedKFold, ShuffleSplit, \
     cross_val_score, LeaveOneOut
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from tqdm import tqdm
 from sklearn.metrics import r2_score
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # creating folder for results
     # folder_name = f"ml-tuning-08-07-2024-splits-3"
-    folder_name = f"ml-tuning-{datetime.now().strftime('%m-%d-%Y')}-splits-5"
+    folder_name = f"ml-tuning-{datetime.now().strftime('%m-%d-%Y')}-splits-10"
     folder = os.path.join(os.getcwd(), folder_name)
     os.makedirs(folder)
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     # settings
     num_experiments = 10
-    n_splits = 5        # 3, 5, 10
+    n_splits = 10        # 3, 5, 10
     n_repeats = 3
 
     # validation methods
@@ -195,10 +195,6 @@ if __name__ == '__main__':
                         pipe = Pipeline(steps=[("scaler", MinMaxScaler()),
                                                ("model", regressor)])
 
-                        # if len(x.columns) > 9:
-                        #     pipe = Pipeline(steps=[("scaler", MinMaxScaler()),
-                        #                            ('pca', PCA(n_components=4)),
-                        #                            ("model", regressor)])
 
                         # get ready tuning method
                         tuned_regressor = mlAlgorithms.select_hyper_algorithm(pipe, hyper_algorithm,
