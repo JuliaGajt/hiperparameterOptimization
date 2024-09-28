@@ -3,7 +3,7 @@ from scipy.stats import randint
 from sklearn.model_selection import cross_val_score
 
 
-class ModelTraining:
+class TPEAlgorithm:
 
     def __init__(self, pipeline, cv, params, X, y, cv_scoring_metric='neg_mean_squared_error',
                  n_trials=80, sampler_seed=1):
@@ -23,8 +23,6 @@ class ModelTraining:
 
     def _objective(self, trial):
 
-        # print(self.params)
-
         params = {}
         for key, val in self.params.items():
             if type(self.params[key]) is not list:
@@ -35,19 +33,6 @@ class ModelTraining:
                     params.update({key: trial.suggest_uniform(key, low, up)})
             else:
                 params.update({key: trial.suggest_categorical(key, val)})
-
-        # print(params)
-
-        # params = {
-        #     # 'max_depth': trial.suggest_int('max_depth', 2, 7 - 1),
-        #     # 'learning_rate': trial.suggest_uniform('learning_rate', 0.05, 0.5),
-        #     'n_estimators': trial.suggest_int('n_estimators', 20, 200),
-        #     'learning_rate': trial.suggest_uniform('learning_rate', 0.01, 0.1),
-        #     'subsample': trial.suggest_uniform('subsample', 0.3, 1.0)
-        # }
-
-        # print(self.regressor_model(**params))
-        # print(type(self.regressor_model(**params)))
 
         fresh_pipeline = self.pipeline
         params_for_model = dict(self.basic_params, **params)
@@ -66,8 +51,6 @@ class ModelTraining:
         self.study = create_study(sampler=samplers.TPESampler(seed=self._sampler_seed),
                                   direction='maximize')
         self.study.optimize(self._objective, n_trials=self.n_trials)
-        # print(self.study.best_params)
-        # print(self.study.best_value)
 
     def fit(self, X, y):
 
@@ -88,13 +71,3 @@ class ModelTraining:
         self.pipeline.fit(X, y)
 
         return self
-
-
-# tuned_regressor = ModelTraining(X_train, y_train, 50, 'neg_mean_squared_error',
-#                                 val_met, regressor_model=GradientBoostingRegressor)
-# tuned_regressor.optimize()
-# print(tuned_regressor.study.best_params)
-# print(tuned_regressor.study.best_value)
-# tuned_regressor = GradientBoostingRegressor(**tuned_regressor.study.best_params, loss='absolute_error',
-#                                             criterion='squared_error', random_state=42)
-# tuned_regressor.fit(X_train, y_train)

@@ -6,8 +6,6 @@ import numpy as np
 from scipy.stats import randint, uniform, loguniform
 from sklearn.model_selection import cross_val_score
 
-from GeneticAlgorithm import _sample
-
 
 class SimulatedAnnealing:
     def __init__(self, initial_solution, cv, pipeline, params, initial_temperature=100,
